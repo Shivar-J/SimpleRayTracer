@@ -12,7 +12,9 @@ public:
 		double vfov,
 		double aspect_ratio,
 		double aperature,
-		double focus_dist
+		double focus_dist,
+		double _time0 = 0,
+		double _time1 = 0
 	) {
 		auto theta = degrees_to_radians(vfov);
 		auto h = tan(theta / 2);
@@ -27,15 +29,19 @@ public:
 		horizontal = focus_dist * viewport_width * u;
 		vertical = focus_dist * viewport_height * v;
 		lower_left_corner = origin - horizontal / 2 - vertical / 2 - focus_dist * w;
+
+		lens_radius = aperature / 2;
+		time0 = _time0;
+		time1 = _time1;
 	}
 
 	ray get_ray(double s, double t) const {
 		vec3 rd = lens_radius * random_in_unit_disk();
-		vec3 offset = rd.x() * u + rd.y() * v;
+		vec3 offset = rd.x * u + rd.y * v;
 		
 		return ray(
 			origin + offset,
-			lower_left_corner + s * horizontal + t * vertical - origin - offset
+			lower_left_corner + s * horizontal + t * vertical - origin - offset, random_double(time0, time1)
 		);
 	}
 
@@ -46,6 +52,7 @@ private:
 	vec3 vertical;
 	vec3 u, v, w;
 	double lens_radius;
+	double time0, time1;
 };
 
 #endif // !CAMERA_H
